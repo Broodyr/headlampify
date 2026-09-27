@@ -2,7 +2,7 @@
 
 # Headlampify
 
-Headlampify any light block! A new slot by your helmet turns torches, lanterns, glowstone and more into a smooth, moving headlamp.
+Headlampify any light block! A new slot by your helmet turns torches, lanterns, glowstone and more into a dynamic headlamp.
 
 A Fabric mod for Minecraft 26.3.
 
