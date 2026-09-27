@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "me.broodyr.headlampify.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"AbstractContainerMenuMixin",
+		"InventoryMenuMixin",
+		"PlayerMixin",
+		"ServerGamePacketListenerImplMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

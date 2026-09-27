@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "me.broodyr.headlampify.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"CreativeModeInventoryScreenMixin",
+		"EntityRendererMixin",
+		"InventoryScreenMixin",
+		"LightCoordsUtilMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

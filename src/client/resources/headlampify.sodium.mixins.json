@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "me.broodyr.headlampify.client.mixin.sodium",
+	"plugin": "me.broodyr.headlampify.client.mixin.sodium.SodiumMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"SodiumLightPipelineMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	}
+}

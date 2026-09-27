@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "headlampify",
+	"version": "${version}",
+	"name": "Headlampify",
+	"description": "Headlampify any light block! A new slot by your helmet turns torches, lanterns, glowstone and more into a dynamic headlamp.",
+	"authors": [
+		"Broodyr"
+	],
+	"license": "MIT",
+	"icon": "assets/headlampify/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"me.broodyr.headlampify.Headlampify"
+		],
+		"client": [
+			"me.broodyr.headlampify.client.HeadlampifyClient"
+		]
+	},
+	"mixins": [
+		"headlampify.mixins.json",
+		{
+			"config": "headlampify.client.mixins.json",
+			"environment": "client"
+		},
+		{
+			"config": "headlampify.sodium.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
