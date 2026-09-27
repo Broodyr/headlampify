@@ -1,5 +1,6 @@
 package me.broodyr.headlampify.client;
 
+import me.broodyr.headlampify.HeadlampSlot;
 import me.broodyr.headlampify.HeadlampifyNetworking;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -12,5 +13,6 @@ public class HeadlampifyClient implements ClientModInitializer {
 		// Registering the receiver is what tells the server this client has the mod; nothing is ever sent on it.
 		ClientPlayNetworking.registerGlobalReceiver(HeadlampifyNetworking.PresencePayload.TYPE, (payload, context) -> {
 		});
+		HeadlampSlot.setServerHasMod(() -> ClientPlayNetworking.canSend(HeadlampifyNetworking.PresencePayload.TYPE));
 	}
 }

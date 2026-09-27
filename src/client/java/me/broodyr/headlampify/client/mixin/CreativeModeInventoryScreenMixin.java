@@ -49,7 +49,7 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
 
 	@Inject(method = "extractBackground", at = @At("TAIL"))
 	private void headlampify$drawSlot(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-		if (this.isInventoryOpen()) {
+		if (this.isInventoryOpen() && this.minecraft.player.inventoryMenu.getSlot(HeadlampSlot.MENU_INDEX).isActive()) {
 			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, this.leftPos + CREATIVE_X - 1, this.topPos + CREATIVE_Y - 1, 18, 18);
 		}
 	}

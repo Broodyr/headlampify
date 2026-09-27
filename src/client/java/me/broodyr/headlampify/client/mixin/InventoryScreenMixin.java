@@ -28,6 +28,8 @@ public abstract class InventoryScreenMixin extends AbstractRecipeBookScreen<Inve
 
 	@Inject(method = "extractBackground", at = @At("TAIL"))
 	private void headlampify$drawSlot(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci) {
-		graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, this.leftPos + HeadlampSlot.X - 1, this.topPos + HeadlampSlot.Y - 1, 18, 18);
+		if (this.menu.getSlot(HeadlampSlot.MENU_INDEX).isActive()) {
+			graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SPRITE, this.leftPos + HeadlampSlot.X - 1, this.topPos + HeadlampSlot.Y - 1, 18, 18);
+		}
 	}
 }

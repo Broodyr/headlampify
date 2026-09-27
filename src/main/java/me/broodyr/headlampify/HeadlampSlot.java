@@ -1,5 +1,6 @@
 package me.broodyr.headlampify;
 
+import java.util.function.BooleanSupplier;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,9 @@ public class HeadlampSlot extends Slot {
 	public static final int Y = 8;
 	public static final Identifier EMPTY_ICON = Headlampify.id("container/slot/headlamp");
 
+	/** Set by the client entrypoint: whether the server the client is connected to has Headlampify. */
+	private static BooleanSupplier serverHasMod = () -> true;
+
 	private final Player player;
 
 	public HeadlampSlot(Player player) {
@@ -22,12 +26,21 @@ public class HeadlampSlot extends Slot {
 		this.player = player;
 	}
 
+	public static void setServerHasMod(BooleanSupplier serverHasMod) {
+		HeadlampSlot.serverHasMod = serverHasMod;
+	}
+
 	/**
-	 * Whether the player's client knows about this slot. Always true client-side; on the server, false for players on
-	 * vanilla clients, who never see the slot and can't put anything into it.
+	 * Whether both sides of the connection know about this slot. On the server, false for players on vanilla clients;
+	 * on the client, false when connected to a server without Headlampify. Either way the slot is hidden and can't hold
+	 * anything, since the other side would reject or crash on it.
 	 */
 	public boolean isAvailable() {
-		return !(this.player instanceof ServerPlayer serverPlayer) || HeadlampifyNetworking.hasMod(serverPlayer);
+		if (this.player instanceof ServerPlayer serverPlayer) {
+			return HeadlampifyNetworking.hasMod(serverPlayer);
+		}
+
+		return !this.player.level().isClientSide() || serverHasMod.getAsBoolean();
 	}
 
 	/** Whether {@code menu} is a player inventory whose headlamp slot must not be synced to the client. */

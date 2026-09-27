@@ -8,9 +8,10 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Detects whether a player's client has Headlampify installed, so the server can stay compatible with vanilla clients.
+ * Detects whether the other side of a connection has Headlampify installed, so modded servers stay compatible with
+ * vanilla clients and modded clients stay compatible with servers without the mod (vanilla, Paper, ...).
  *
- * <p>The client registers a receiver for {@link PresencePayload}; Fabric reports those channels to the server during
+ * <p>Both sides register a receiver for {@link PresencePayload}; Fabric exchanges those channel lists during
  * configuration, before the player's inventory is first sent. The payload itself is never sent.</p>
  */
 public final class HeadlampifyNetworking {
@@ -30,6 +31,10 @@ public final class HeadlampifyNetworking {
 
 	static void init() {
 		PayloadTypeRegistry.clientboundPlay().register(PresencePayload.TYPE, PresencePayload.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay().register(PresencePayload.TYPE, PresencePayload.STREAM_CODEC);
+		// Registering the receiver is what tells clients this server has the mod; nothing is ever sent on it.
+		ServerPlayNetworking.registerGlobalReceiver(PresencePayload.TYPE, (payload, context) -> {
+		});
 	}
 
 	/** Whether this player's client has Headlampify. Players without a network connection (e.g. fake players) count as modded. */
