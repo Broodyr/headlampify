@@ -24,6 +24,11 @@ import net.minecraft.world.phys.Vec3;
  * affected sections are marked for rebuild, so every section in a rebuild agrees on where the light is (sections are
  * compiled asynchronously, and meshing them against a per-tick position made neighbouring sections disagree and
  * flicker). {@link #liveSources} updates every tick and lights entities, which are re-lit every frame anyway.</p>
+ *
+ * <p>Entities are rendered at positions interpolated between ticks, so live sources keep their previous-tick position
+ * too and are interpolated by the same partial tick. Otherwise the gap between an interpolated entity and a once-per-tick
+ * light position would grow and shrink every tick, making the wearer's own hand (lit at their eye position) flicker in
+ * a sawtooth whose depth is how far they move per tick.</p>
  */
 public final class HeadlampLights {
 	/**
@@ -34,7 +39,8 @@ public final class HeadlampLights {
 	private static final double REBUILD_DISTANCE = 1.0 / 16.0;
 	private static final int MAX_SMOOTH_LIGHT = 240;
 
-	private record Source(double x, double y, double z, int level) {
+	/** A light at {@code (x, y, z)} this tick, which was at {@code (xo, yo, zo)} the tick before. */
+	private record Source(double xo, double yo, double zo, double x, double y, double z, int level) {
 	}
 
 	private static final Source[] NONE = new Source[0];
@@ -54,12 +60,15 @@ public final class HeadlampLights {
 
 	/** Headlamp block light (0-240) baked into terrain at an exact position. Safe to call from section-compile threads. */
 	public static int bakedLightAt(double x, double y, double z) {
-		return lightAt(bakedSources, x, y, z);
+		return lightAt(bakedSources, x, y, z, 1.0F);
 	}
 
-	/** Headlamp block light (0-240) at an exact position, for lighting entities. */
-	public static int liveLightAt(Vec3 pos) {
-		return lightAt(liveSources, pos.x, pos.y, pos.z);
+	/**
+	 * Headlamp block light (0-240) at an exact position, for lighting entities. {@code partialTick} must be the one
+	 * {@code pos} was interpolated with, so lights and entities are compared at the same moment.
+	 */
+	public static int liveLightAt(Vec3 pos, float partialTick) {
+		return lightAt(liveSources, pos.x, pos.y, pos.z, partialTick);
 	}
 
 	/** Raises the block light of packed light coords to {@code light} (0-240) if that's brighter. */
@@ -67,12 +76,12 @@ public final class HeadlampLights {
 		return light > (coords & 0xFF) ? (coords & 0xFFFF0000) | light : coords;
 	}
 
-	private static int lightAt(Source[] sources, double x, double y, double z) {
+	private static int lightAt(Source[] sources, double x, double y, double z, float partialTick) {
 		int best = 0;
 		for (Source source : sources) {
-			double dx = x - source.x;
-			double dy = y - source.y;
-			double dz = z - source.z;
+			double dx = x - Mth.lerp(partialTick, source.xo, source.x);
+			double dy = y - Mth.lerp(partialTick, source.yo, source.y);
+			double dz = z - Mth.lerp(partialTick, source.zo, source.z);
 			double distSq = dx * dx + dy * dy + dz * dz;
 			if (distSq >= source.level * source.level) {
 				continue;
@@ -107,8 +116,9 @@ public final class HeadlampLights {
 				continue;
 			}
 
-			Vec3 eye = player.getEyePosition();
-			seen.put(player.getId(), new Source(eye.x, eye.y, eye.z, Math.min(light, 15)));
+			Vec3 previous = player.getEyePosition(0.0F);
+			Vec3 eye = player.getEyePosition(1.0F);
+			seen.put(player.getId(), new Source(previous.x, previous.y, previous.z, eye.x, eye.y, eye.z, Math.min(light, 15)));
 		}
 
 		liveSources = seen.values().toArray(NONE);
